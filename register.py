@@ -14,7 +14,7 @@ class Register_window:
         # ------------- Variables -------------
         self.var_fname=StringVar()
         self.var_lname=StringVar()
-        self.var_contact=IntVar()
+        self.var_contact=StringVar()
         self.var_email=StringVar()
         self.var_securityQ=StringVar()
         self.var_securityA=StringVar()
@@ -24,7 +24,7 @@ class Register_window:
 
         # ------------- Background Image -------------
         self.bg = ImageTk.PhotoImage(
-            file=r"Images\1350991-download-free-cool-windows-10-hd-wallpapers-1920x1080-windows-xp.jpg")
+            file=r"Images\Windows-10-Wallpaper-HD-Free-download.jpg")
         lbl_bg = Label(self.window, image=self.bg)
         lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
 
@@ -122,7 +122,31 @@ class Register_window:
         elif self.var_check.get()==0:
             messagebox.showerror("Error",'Please agree our terms and conditions')
         else:
-            messagebox.showinfo("Success", "Welcome")
+            conn=mysql.connector.connect(host="localhost",user="root",password="",database="mysql_db")
+            cur=conn.cursor()
+
+            query=("SELECT * FROM REGISTER WHERE email=%s")
+            value=(self.var_email.get(),)
+
+            cur.execute(query,value)
+            row=cur.fetchone()
+
+            if row != None:
+                messagebox.showerror("Error","User already exist")
+            else:
+                cur.execute("INSERT INTO REGISTER VALUES(%s,%s,%s,%s,%s,%s,%s)",(
+                    self.var_fname.get(),
+                    self.var_lname.get(),
+                    self.var_contact.get(),
+                    self.var_email.get(),
+                    self.var_securityQ.get(),
+                    self.var_securityA.get(),
+                    self.var_pass.get()))
+
+            conn.commit()
+            conn.close()
+            messagebox.showinfo("Success", "Registered Successfully")
+
 
 if __name__ == "__main__":
     window = Tk()
