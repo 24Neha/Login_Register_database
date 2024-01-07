@@ -2,14 +2,13 @@ from tkinter import *
 from tkinter import ttk
 from PIL import Image, ImageTk
 from tkinter import messagebox
-from login import Login_window
 import mysql.connector
 
 class Register_window:
     def __init__(self,window):
-        self.window=window
-        self.window.title("Register")
-        self.window.geometry("1600x900+0+0")
+        self.reg_window=window
+        self.reg_window.title("Register")
+        self.reg_window.geometry("1600x900+0+0")
 
         # ------------- Variables -------------
         self.var_fname=StringVar()
@@ -25,20 +24,20 @@ class Register_window:
         # ------------- Background Image -------------
         self.bg = ImageTk.PhotoImage(
             file=r"Images\Windows-10-Wallpaper-HD-Free-download.jpg")
-        lbl_bg = Label(self.window, image=self.bg)
+        lbl_bg = Label(self.reg_window, image=self.bg)
         lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
 
         # ------------- Left Frame -------------
-        left_frame = Frame(self.window, bg="grey")
-        left_frame.place(x=330, y=170, width=370, height=550)
+        left_frame = Frame(self.reg_window, bg="grey")
+        left_frame.place(x=230, y=110, width=370, height=550)
 
         self.left_frame_1 = ImageTk.PhotoImage(
             file=r"Images/nature-desktop-wallpaper-hd-free-download.jpg")
         lbl_bg = Label(left_frame, image=self.left_frame_1)
         lbl_bg.place(x=30, y=30, width=310, height=500)
 
-        right_frame = Frame(self.window, bg="steel blue")
-        right_frame.place(x=700, y=170, width=550, height=550)
+        right_frame = Frame(self.reg_window, bg="steel blue")
+        right_frame.place(x=600, y=110, width=550, height=550)
 
         get_strt=Label(right_frame,text="Registration ", font=("times new roman", 30, "bold"), fg="white", bg="steel blue")
         get_strt.place(x=125, y=50)
@@ -114,13 +113,14 @@ class Register_window:
         login_button=Button(right_frame,text="Login Now",font=("times new roman",15,"bold"),bg="grey",activebackground='grey')
         login_button.place(x=300, y=470, width=150)
 
+
     def register_data(self):
         if self.var_fname.get()=="" or self.var_email.get()=="" or self.var_securityQ=="Select":
-            messagebox.showerror("Error","All fields are required")
+            messagebox.showerror("Error","All fields are required",parent=self.reg_window)
         elif self.var_pass.get()!=self.var_confpass.get():
-            messagebox.showerror("Error", "Password and Confirm password should be same")
+            messagebox.showerror("Error", "Password and Confirm password should be same", parent=self.reg_window)
         elif self.var_check.get()==0:
-            messagebox.showerror("Error",'Please agree our terms and conditions')
+            messagebox.showerror("Error",'Please agree our terms and conditions', parent=self.reg_window)
         else:
             conn=mysql.connector.connect(host="localhost",user="root",password="",database="mysql_db")
             cur=conn.cursor()
@@ -132,7 +132,7 @@ class Register_window:
             row=cur.fetchone()
 
             if row != None:
-                messagebox.showerror("Error","User already exist")
+                messagebox.showerror("Error","User already exist", parent=self.reg_window)
             else:
                 cur.execute("INSERT INTO REGISTER VALUES(%s,%s,%s,%s,%s,%s,%s)",(
                     self.var_fname.get(),
@@ -145,8 +145,7 @@ class Register_window:
 
             conn.commit()
             conn.close()
-            messagebox.showinfo("Success", "Registered Successfully")
-
+            messagebox.showinfo("Success", "Registered Successfully", parent=self.reg_window)
 
 if __name__ == "__main__":
     window = Tk()

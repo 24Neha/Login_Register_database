@@ -1,33 +1,34 @@
+from tkinter import ttk, messagebox
 from tkinter import *
-from tkinter import ttk
-
 import mysql.connector
 from PIL import Image, ImageTk
-from tkinter import messagebox
+# from register import Register_window
+# from forget_password import Forget_password
 
 def main():
-    win=Tk()
-    app=Login_window(win)
+    win = Tk()
+    app = Login_window(win)
     win.mainloop()
 
 class Welcome_window():
-    def __init__(self, window):
-        self.window = window
-        self.window.title("Login")
-        self.window.geometry = ("1550x800+0+0")
+        def __init__(self, window):
+            self.window = window
+            self.window.title("Welcome")
+            self.window.geometry("1600x900+0+0")
 
-        self.bg = ImageTk.PhotoImage(
-            file=r"Images\Welcome-message.jpg")
-        lbl_bg = Label(self.window, image=self.bg)
-        lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
+            # ------------- Background Image -------------
+            self.bg = ImageTk.PhotoImage(
+                file=r"Images/Welcome-message.jpg")
+            lbl_bg = Label(self.window, image=self.bg)
+            lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
 class Login_window:
     def __init__(self, window):
         self.window = window
         self.window.title("Login")
-        self.window.geometry = ("1550x800+0+0")
+        self.window.geometry("1600x900+0+0")
 
-        self.var_email=StringVar()
-        self.var_pass=StringVar()
+        self.var_email = StringVar()
+        self.var_pass = StringVar()
 
         self.bg = ImageTk.PhotoImage(
             file=r"Images\1350991-download-free-cool-windows-10-hd-wallpapers-1920x1080-windows-xp.jpg")
@@ -35,19 +36,19 @@ class Login_window:
         lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
 
         frame = Frame(self.window,bg="white")
-        frame.place(x=630,y=170,width=340,height=450)
+        frame.place(x=530,y=170,width=340,height=450)
 
         get_strt=Label(frame,text="Get Started",font=("times new roman",20,"bold"),fg="black",bg="white")
         get_strt.place(x=95,y=50)
 
         # label
-        username=ttk.Label(frame,text="Username",font=("times new roman",15,"bold"))
+        username=ttk.Label(frame,text="Username",font=("times new roman",15,"bold"),background='white')
         username.place(x=70,y=120)
 
         self.txtusr=ttk.Entry(frame,font=("times new roman",15,"normal"))
         self.txtusr.place(x=40,y=155,width=270)
 
-        password=ttk.Label(frame,text="Password",font=("times new roman",15,"bold"))
+        password=ttk.Label(frame,text="Password",font=("times new roman",15,"bold"),background='white')
         password.place(x=70,y=200,bordermode="inside")
 
         self.txtpass=ttk.Entry(frame,font=("times new roman",15,"normal"))
@@ -59,13 +60,13 @@ class Login_window:
         img1 = img1.resize((27,27),Image.ANTIALIAS)
         self.photoimage1=ImageTk.PhotoImage(img1)
         lblimg1=Label(image=self.photoimage1,bg="white",borderwidth=0)
-        lblimg1.place(x=670,y=290,width=27,height=27)
+        lblimg1.place(x=570,y=290,width=27,height=27)
 
         img2 = Image.open(r"Images\password_logo.png")
         img2 = img2.resize((27,27),Image.ANTIALIAS)
         self.photoimage2=ImageTk.PhotoImage(img2)
         lblimg2=Label(image=self.photoimage2,bg="white",borderwidth=0)
-        lblimg2.place(x=670,y=370,width=27,height=27)
+        lblimg2.place(x=570,y=370,width=27,height=27)
 
         # Login Button
         login_button=Button(frame,command=self.login,text="Login",font=("times new roman",15,"bold"),bd=3,relief=RIDGE,fg="black",bg="steel blue",activeforeground="black",activebackground="steel blue")
@@ -76,41 +77,140 @@ class Login_window:
         register_button.place(x=15,y=350,width=160,)
 
         # Forgot Password Button
-        forgetpass_button=Button(frame,text="Forget Password",font=("times new roman",10,"bold"),borderwidth=0,relief=RIDGE,fg="black",bg="white",activeforeground="black",activebackground="white")
+        forgetpass_button=Button(frame,command=self.forgot_password,text="Forget Password",font=("times new roman",10,"bold"),borderwidth=0,relief=RIDGE,fg="black",bg="white",activeforeground="black",activebackground="white")
         forgetpass_button.place(x=10,y=390,width=160)
 
     def register_window(self):
-        self.new_window=Toplevel(self.window)
+        self.new_window=Toplevel()
         self.app=Register_window(self.new_window)
-
 
     def login(self):
         if self.txtusr.get()=="" or self.txtpass.get()=="":
             messagebox.showerror("Error","All fields are required")
-        elif self.txtusr.get()=="kapu" and self.txtpass.get()=="gappu":
-            messagebox.showinfo(title='Welcome',message="Sucessful Login")
+
         else:
             conn = mysql.connector.connect(host="localhost", user="root", password="", database="mysql_db")
             cur = conn.cursor()
+
+            # Update the instance variables with the current values from the Entry widgets
+            self.var_email.set(self.txtusr.get())
+            self.var_pass.set(self.txtpass.get())
+
             # Your SQL query with placeholders
-            query = "SELECT * FROM register WHERE email=%s AND password=%s"
-            value = (self.var_email.get(), self.var_pass.get())
+            query = ("SELECT * FROM register WHERE email=%s and password=%s")
+            value = (self.var_email.get(),self.var_pass.get())
+
+            # Debugging information
+            print("Values:", value)
+            # Execute the query with the provided data
+            cur.execute(query, value)
+
+            row=cur.fetchone()
+            print(row)
+
+            if row is None:
+                messagebox.showerror("Error","Invalid username or password")
+            else:
+
+                # If email and password are correct, open a full-screen welcome window with a background image
+                self.new_window = Toplevel()
+
+                # Your Welcome_window class instantiation
+                self.app = Welcome_window(self.new_window)
+
+            # Close the database connection and cursor after querying
+            conn.commit()
+            conn.close()
+
+    def reset_pass(self):
+        if self.security_q_entry.get() == "Select":
+            messagebox.showerror("Error", "Select security question", parent=self.root)
+        elif self.security_a_entry == "":
+            messagebox.showerror("Error", "Please enter answer", parent=self.root)
+        elif self.reset_pass_entry == "":
+            messagebox.showerror("Error", "Please enter new password", parent=self.root)
+        else:
+            conn = mysql.connector.connect(host="localhost", user="root", password="", database="mysql_db")
+            cur = conn.cursor()
+
+            # Your SQL query with placeholders
+            query = ("SELECT * FROM register WHERE securityQ=%s and securityA=%s")
+            value = (self.security_q_entry.get(),self.security_a_entry.get())
 
             # Execute the query with the provided data
+            cur.execute(query, value)
+            row = cur.fetchone()
+
+            if row is None:
+                messagebox.showerror("Error", "Please enter correct answer", parent=self.root)
+            else:
+                update_query = "UPDATE register SET password=%s WHERE email=%s"
+                update_values = (self.reset_pass_entry.get(), self.txtusr.get())
+                cur.execute(update_query, update_values)
+
+                conn.commit()
+                conn.close()
+                messagebox.showinfo("Info", "Your password has been reset, Please login with new password", parent=self.root)
+
+                self.root.destroy()
+
+
+    def forgot_password(self):
+        if self.txtusr.get() == "":
+            messagebox.showerror("Error", "Please enter email address address to reset password")
+        else:
+            conn = mysql.connector.connect(host="localhost", user="root", password="", database="mysql_db")
+            cur = conn.cursor()
+
+            query=("select * from register where email=%s")
+            value =(self.txtusr.get(), )
+
             cur.execute(query,value)
             row=cur.fetchone()
 
-            if row!=None:
-                messagebox.showerror("Error","Invalid username or password")
+            if row == None:
+                messagebox.showerror("My Error", "Please enter valid email address")
             else:
-                self.new_window = Toplevel(self.window)
-                self.app = Welcome_window(self.new_window)
+                conn.close()
+                self.root= Toplevel()
+                self.root.title("Forget Password")
+                self.root.geometry("340x450+530+170")
+
+                label = Label(self.root, text="Forget Password ", font=("times new roman", 25, "bold"), fg="red")
+                label.place(x=8, y=40, relwidth=1)
+
+                security_q = Label(self.root, text="Select Security Question", font=("times new roman", 15, "bold"),fg="black")
+                security_q.place(x=35, y=90)
+
+                self.security_q_entry = ttk.Combobox(self.root,font=("times new roman", 15))
+                self.security_q_entry["values"] = ("Select", "Your Birth Place", "You Pet Name", "Your Primary School")
+                self.security_q_entry.place(x=35, y=130, width=250)
+                self.security_q_entry.current(0)
+
+                security_a = Label(self.root, text="Security Answer", font=("times new roman", 15, "bold"),fg="black")
+                security_a.place(x=35, y=180)
+
+                self.security_a_entry = ttk.Entry(self.root,font=("times new roman", 15))
+                self.security_a_entry.place(x=35, y=210, width=250)
+
+                reset_pass = Label(self.root, text="New Password", font=("times new roman", 15, "bold"),fg="black")
+                reset_pass.place(x=35, y=260)
+
+                self.reset_pass_entry = ttk.Entry(self.root,font=("times new roman", 15))
+                self.reset_pass_entry.place(x=35, y=290, width=250)
+
+                pass_button = Button(self.root, text="Reset", command=self.reset_pass,
+                                          font=("times new roman", 15, "bold"),fg='white',bg='green', activebackground='green')
+                pass_button.place(x=120, y=350)
+
+
+
 
 class Register_window:
     def __init__(self,window):
-        self.window=window
-        self.window.title("Register")
-        self.window.geometry("1600x900+0+0")
+        self.reg_window=window
+        self.reg_window.title("Register")
+        self.reg_window.geometry("1600x900+0+0")
 
         # ------------- Variables -------------
         self.var_fname=StringVar()
@@ -126,20 +226,20 @@ class Register_window:
         # ------------- Background Image -------------
         self.bg = ImageTk.PhotoImage(
             file=r"Images\Windows-10-Wallpaper-HD-Free-download.jpg")
-        lbl_bg = Label(self.window, image=self.bg)
+        lbl_bg = Label(self.reg_window, image=self.bg)
         lbl_bg.place(x=0, y=0, relwidth=1, relheight=1)
 
         # ------------- Left Frame -------------
-        left_frame = Frame(self.window, bg="grey")
-        left_frame.place(x=330, y=170, width=370, height=550)
+        left_frame = Frame(self.reg_window, bg="grey")
+        left_frame.place(x=230, y=110, width=370, height=550)
 
         self.left_frame_1 = ImageTk.PhotoImage(
             file=r"Images/nature-desktop-wallpaper-hd-free-download.jpg")
         lbl_bg = Label(left_frame, image=self.left_frame_1)
         lbl_bg.place(x=30, y=30, width=310, height=500)
 
-        right_frame = Frame(self.window, bg="steel blue")
-        right_frame.place(x=700, y=170, width=550, height=550)
+        right_frame = Frame(self.reg_window, bg="steel blue")
+        right_frame.place(x=600, y=110, width=550, height=550)
 
         get_strt=Label(right_frame,text="Registration ", font=("times new roman", 30, "bold"), fg="white", bg="steel blue")
         get_strt.place(x=125, y=50)
@@ -212,16 +312,20 @@ class Register_window:
         register_button.place(x=30, y=470, width=150)
 
         # --------------- Login Now button ---------------
-        login_button=Button(right_frame,text="Login Now",font=("times new roman",15,"bold"),bg="grey",activebackground='grey')
+        login_button=Button(right_frame,command=self.login_window,text="Login Now",font=("times new roman",15,"bold"),bg="grey",activebackground='grey')
         login_button.place(x=300, y=470, width=150)
+
+    def login_window(self):
+        self.new_window=Toplevel()
+        self.app=Login_window(self.new_window)
 
     def register_data(self):
         if self.var_fname.get()=="" or self.var_email.get()=="" or self.var_securityQ=="Select":
-            messagebox.showerror("Error","All fields are required")
+            messagebox.showerror("Error","All fields are required",parent=self.reg_window)
         elif self.var_pass.get()!=self.var_confpass.get():
-            messagebox.showerror("Error", "Password and Confirm password should be same")
+            messagebox.showerror("Error", "Password and Confirm password should be same", parent=self.reg_window)
         elif self.var_check.get()==0:
-            messagebox.showerror("Error",'Please agree our terms and conditions')
+            messagebox.showerror("Error",'Please agree our terms and conditions', parent=self.reg_window)
         else:
             conn=mysql.connector.connect(host="localhost",user="root",password="",database="mysql_db")
             cur=conn.cursor()
@@ -233,7 +337,7 @@ class Register_window:
             row=cur.fetchone()
 
             if row != None:
-                messagebox.showerror("Error","User already exist")
+                messagebox.showerror("Error","User already exist", parent=self.reg_window)
             else:
                 cur.execute("INSERT INTO REGISTER VALUES(%s,%s,%s,%s,%s,%s,%s)",(
                     self.var_fname.get(),
@@ -246,7 +350,8 @@ class Register_window:
 
             conn.commit()
             conn.close()
-            messagebox.showinfo("Success", "Registered Successfully")
+            messagebox.showinfo("Success", "Registered Successfully", parent=self.reg_window)
+
 
 if __name__ == "__main__":
     main()
