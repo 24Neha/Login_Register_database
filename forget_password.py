@@ -76,7 +76,7 @@ class Forget_password:
 
     def forgot_password(self):
         if self.login.txtusr.get() == "":
-            messagebox.showerror("Error", "Please enter email address address to reset password")
+            messagebox.showerror("Error", "Please enter email address to reset password")
         else:
             conn = mysql.connector.connect(host="localhost", user="root", password="", database="mysql_db")
             cur = conn.cursor()
